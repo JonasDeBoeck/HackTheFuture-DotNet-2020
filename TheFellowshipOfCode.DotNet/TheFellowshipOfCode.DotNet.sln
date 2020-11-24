@@ -27,6 +27,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Maps for you to use as t
 		.maps\simple.htf = .maps\simple.htf
 		.maps\test.htf = .maps\test.htf
 		.maps\test1.htf = .maps\test1.htf
+		.maps\test3.htf = .maps\test3.htf
 	EndProjectSection
 EndProject
 Global
