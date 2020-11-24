@@ -6,6 +6,7 @@ using HTF2020.Contracts;
 using HTF2020.Contracts.Enums;
 using HTF2020.Contracts.Models;
 using HTF2020.Contracts.Models.Adventurers;
+using HTF2020.Contracts.Models.Party;
 using HTF2020.Contracts.Requests;
 
 namespace TheFellowshipOfCode.DotNet.YourAdventure
@@ -24,14 +25,28 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
 
             for (var i = 0; i < request.MembersCount; i++)
             {
-                party.Members.Add(new Fighter()
+                if (_random.Next(0, 10) > 5)
                 {
-                    Id = i,
-                    Name = $"Member {i + 1}",
-                    Constitution = 11,
-                    Strength = 12,
-                    Intelligence = 11
-                });
+                    party.Members.Add(new Wizard()
+                    {
+                        Id = i,
+                        Name = $"Wizard {i + 1}",
+                        Constitution = 11, 
+                        Strength = 9,
+                        Intelligence = 14
+                    });
+                }
+                else
+                {
+                    party.Members.Add(new Fighter()
+                    {
+                        Id = i,
+                        Name = $"Fighter {i + 1}",
+                        Constitution = 11,
+                        Strength = 14,
+                        Intelligence = 9
+                    });
+                }
             }
 
             return Task.FromResult(party);
@@ -39,7 +54,7 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
 
         public Task<Turn> PlayTurn(PlayTurnRequest request)
         {
-            return PlayToEnd();
+            return Strategic();
 
             Task<Turn> PlayToEnd()
             {
