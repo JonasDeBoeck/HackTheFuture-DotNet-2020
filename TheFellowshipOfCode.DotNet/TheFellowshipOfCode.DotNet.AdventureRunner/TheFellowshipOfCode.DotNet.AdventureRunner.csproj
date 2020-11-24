@@ -24,7 +24,7 @@
 
   <Target Name="CopyMap" AfterTargets="Build">
     <Message Text="--- Copying the HTF Adventure MAP to '$(OutputPath)' ---" Importance="high" />
-    <Copy SourceFiles="..\.maps\test1.htf" DestinationFiles="$(OutputPath)\TheFellowshipOfCode.DotNet.YourAdventure.htf" />
+    <Copy SourceFiles="..\.maps\test.htf" DestinationFiles="$(OutputPath)\TheFellowshipOfCode.DotNet.YourAdventure.htf" />
   </Target>
 
 </Project>

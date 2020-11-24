@@ -60,13 +60,30 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
             var pathfinder = new PathFinder(request.Map);
             var start_location = PathFinder.GetAllTileTypes(request.Map, TileType.Start)[0];
             // find loot
+            List<Location> fullPath = new List<Location>();
             var Treasures = pathfinder.GetAllPaths(start_location, TileType.TreasureChest);
             var Enemies = PathFinder.GetAllTileTypes(request.Map, TileType.Enemy);
+            var TreasureChests = PathFinder.GetAllTileTypes(request.Map, TileType.TreasureChest);
             var EnemiesOnPath = CalculateEnemies();
+            foreach(var location in TreasureChests)
+            {
+                fullPath.AddRange(pathfinder.A_star(start_location, location));
+                start_location = location;
+            }
+            fullPath.AddRange(pathfinder.A_star(start_location, PathFinder.GetAllTileTypes(request.Map, TileType.Finish)[0]));
 
+
+            /*for (int i = 0;  i < Treasures.Count; i++)
+            {
+                if (EnemiesOnPath[i] < 2)
+                {
+                    fullPath.AddRange(Treasures[i]);
+                }
+            }*/
 
             // calculate finish
-            var path = pathfinder.A_star(start_location, PathFinder.GetAllTileTypes(request.Map,TileType.Finish)[0]);
+            var path = fullPath;
+            //var path = pathfinder.A_star(start_location, PathFinder.GetAllTileTypes(request.Map,TileType.Finish)[0]);
                     
             return SmartPath();
 
@@ -132,9 +149,13 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                 {
                     return Task.FromResult(new Turn(TurnAction.WalkSouth));
                 }
-                else
+                else if (deltaX == 0 && deltaY == 1)
                 {
                     return Task.FromResult(new Turn(TurnAction.WalkNorth));
+                }
+                else
+                {
+                    return Task.FromResult(new Turn(TurnAction.Pass));
                 }
             }
 
