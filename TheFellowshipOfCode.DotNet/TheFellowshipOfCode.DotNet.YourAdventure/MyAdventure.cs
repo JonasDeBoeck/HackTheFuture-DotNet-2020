@@ -14,7 +14,10 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
     public class MyAdventure : IAdventure
     {
         private readonly Random _random = new Random();
+        private int index=0;
 
+        public MyAdventure() { 
+        }
         public Task<Party> CreateParty(CreatePartyRequest request)
         {
             var party = new Party
@@ -54,7 +57,17 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
 
         public Task<Turn> PlayTurn(PlayTurnRequest request)
         {
+            var pathfinder = new PathFinder(request.Map);
+            var start_location = PathFinder.GetAllTileTypes(request.Map, TileType.Start)[0];
+            // find loot
+            var Treasures = pathfinder.GetAllPaths(start_location, TileType.TreasureChest);
+            var Enemies = PathFinder.GetAllTileTypes(request.Map, TileType.Enemy);
+            var EnemiesOnPath = CalculateEnemies();
 
+
+            // calculate finish
+            var path = pathfinder.A_star(start_location, PathFinder.GetAllTileTypes(request.Map,TileType.Finish)[0]);
+                    
             return SmartPath();
 
             Task<Turn> PlayToEnd()
@@ -64,37 +77,76 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
 
             Task<Turn> SmartPath()
             {
-                var start = PathFinder.GetAllTileTypes(request.Map, TileType.Start)[0];
-                var pathfinder = new PathFinder(request.Map);
-                var path = pathfinder.A_star(start, TileType.Enemy);
-                IList<Turn> actions = new List<Turn>();
-                foreach (var location in path)
+                var start = path[index];
+                if (index+1 < path.Count)
                 {
+                    var location = path[++index];
                     double deltaX = start.X - location.X;
                     double deltaY = start.Y - location.Y;
+                    if (request.Map.Tiles[start.X,start.Y].TileType == TileType.Enemy)
+                    {
+                        
+                        if (request.PossibleActions.Contains(TurnAction.Attack))
+                        {
+                            index--;
+                            return Task.FromResult(new Turn(TurnAction.Attack));
+                        }
+                        else if (request.PossibleActions.Contains(TurnAction.Loot))
+                        {
+                            index--;
+                            return Task.FromResult(new Turn(TurnAction.Loot));
+                        }
+                        else
+                        {
+                            return Task.FromResult(new Turn(TurnAction.WalkEast));
+                        }
+                    }
+                    else if (request.Map.Tiles[start.X,start.Y].TileType == TileType.TreasureChest)
+                    {
+                        
+                        if (request.PossibleActions.Contains(TurnAction.Loot))
+                        {
+                            index--;
+                            return Task.FromResult(new Turn(TurnAction.Loot));
+                        }
+                    }
+
                     if (deltaX == -1 && deltaY == 0)
                     {
-                        Task.FromResult(new Turn(TurnAction.WalkWest));
-                        //actions.Add(new Turn(TurnAction.WalkWest));
+                        return Task.FromResult(new Turn(TurnAction.WalkEast));
                     }
-                    if (deltaX == 1 && deltaY == 0)
+                    else if (deltaX == 1 && deltaY == 0)
                     {
-                        Task.FromResult(new Turn(TurnAction.WalkEast));
-                        /* actions.Add(new Turn(TurnAction.WalkEast));*/
+                        return Task.FromResult(new Turn(TurnAction.WalkWest));
                     }
-                    if (deltaX == 0 && deltaY == -1)
+                    else if (deltaX == 0 && deltaY == -1)
                     {
-                        Task.FromResult(new Turn(TurnAction.WalkSouth));
-                        /*actions.Add(new Turn(TurnAction.WalkSouth));*/
+                        return Task.FromResult(new Turn(TurnAction.WalkSouth));
                     }
-                    if (deltaX == 0 && deltaY == 1)
+                    else
                     {
-                        Task.FromResult(new Turn(TurnAction.WalkNorth));
-                        /*actions.Add(new Turn(TurnAction.WalkNorth));*/
+                        return Task.FromResult(new Turn(TurnAction.WalkNorth));
                     }
-                    start = location;
-                    return Task.FromResult(new Turn(request.PossibleActions[_random.Next(request.PossibleActions.Length)]));
                 }
+                return Task.FromResult(new Turn(request.PossibleActions[_random.Next(request.PossibleActions.Length)]));
+            }
+
+            List<int> CalculateEnemies()
+            {
+                List<int> matrix = new List<int>();
+                foreach (var treasure_path in Treasures)
+                {
+                    int EnemyCount = 0;
+                    foreach (var EnemyLocation in Enemies)
+                    {
+                        if (treasure_path.Contains(EnemyLocation))
+                        {
+                            EnemyCount++;                            
+                        }
+                    }
+                    matrix.Add(EnemyCount);
+                }
+                return matrix;
             }
 
             Task<Turn> Strategic()

@@ -16,12 +16,14 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
         public LocationWrapper Parent { get; set; }
         public double G_score { get; set; }
         public double H_score { get; set; }
+        public double E_score { get; set; }
 
         public LocationWrapper(Location location)
         {
             this.Location = location;
             G_score = 0;
             H_score = 0;
+            E_score = 0;
         }
     }
 
@@ -32,10 +34,20 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
         {
             this.map = map;
         }
-        public IList<Location> A_star(Location Start, TileType finish)
-        {
-            IList<Location> LocationsOfFinishType = GetAllTileTypes(this.map, finish);
 
+        public List<List<Location>> GetAllPaths(Location start, TileType finish)
+        {
+            List<List<Location>> matrix = new List<List<Location>>();
+            var listOfTypes = GetAllTileTypes(this.map, finish);
+            foreach(var location in listOfTypes)
+            {
+                var path = A_star(start,location );
+                matrix.Add(path.ToList());
+            }
+            return matrix;
+        }
+        public IList<Location> A_star(Location Start, Location finish)
+        {
             IList<LocationWrapper> openlist = new List<LocationWrapper>();
             IList<LocationWrapper> closedList = new List<LocationWrapper>();
             var StartWrapper = new LocationWrapper(Start);
@@ -45,7 +57,7 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
             {
                 var current = GetMin(openlist);
                 openlist.Remove(current);
-                if (this.map.Tiles[current.Location.X,current.Location.Y].TileType == finish)
+                if (current.Location.X == finish.X && current.Location.Y == finish.Y)
                 {
                     return Backtrack(current);
                 }
@@ -73,15 +85,14 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                             location.G_score = new_G;
                             openlist.Add(location);
                         }
-                        foreach (var l in LocationsOfFinishType)
+                        location.H_score = CalculateDistance(location.Location, finish);
+                        if (this.map.Tiles[location.Location.X, location.Location.Y].TileType == TileType.Enemy)
                         {
-                            location.H_score = CalculateDistance(location.Location, l);
+                            location.E_score = 150;
                         }
-
                     }
                 }
-
-            
+          
             }
             return null;
         }
@@ -101,6 +112,7 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
         private IList<Location> Backtrack(LocationWrapper current)
         {
             IList<Location> path = new List<Location>();
+            path.Add(current.Location);
             while (current.Parent != null)
             {
                 path.Add(current.Parent.Location);
@@ -124,13 +136,13 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
             LocationWrapper south = new LocationWrapper(new Location (current.X + 1, current.Y));
             LocationWrapper west = new LocationWrapper(new Location (current.X, current.Y - 1));
             LocationWrapper east = new LocationWrapper(new Location (current.X, current.Y + 1));
-            if (north.Location.X > 0)
+            if (north.Location.X >= 0)
                 neighbours.Add(north);
             if (south.Location.X < this.map.Tiles.GetLength(0))
                 neighbours.Add(south);
-            if (east.Location.X < this.map.Tiles.GetLength(1))
+            if (east.Location.Y < this.map.Tiles.GetLength(1))
                 neighbours.Add(east);
-            if (west.Location.X > 0 )
+            if (west.Location.Y >= 0 )
                 neighbours.Add(west);
             return checkNeighbours(neighbours);
         }
@@ -157,7 +169,7 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
             var minLocation = list[0];
             foreach(var location in list)
             {
-                if (minLocation.H_score + minLocation.G_score > location.H_score + location.G_score)
+                if (minLocation.H_score + minLocation.G_score + minLocation.E_score > location.H_score + location.G_score + location.E_score)
                 {
                     minLocation = location;
                 }

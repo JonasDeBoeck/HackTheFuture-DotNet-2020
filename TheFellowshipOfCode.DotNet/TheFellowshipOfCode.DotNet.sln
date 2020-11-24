@@ -17,14 +17,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0. Dependencies. Don't touc
 		.dependencies\HTF2020.GameController.dll = .dependencies\HTF2020.GameController.dll
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheFellowshipOfCode.DotNet.YourAdventure", "TheFellowshipOfCode.DotNet.YourAdventure\TheFellowshipOfCode.DotNet.YourAdventure.csproj", "{6F49CFC0-8DF3-4DD8-9386-3BC5321C88B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TheFellowshipOfCode.DotNet.YourAdventure", "TheFellowshipOfCode.DotNet.YourAdventure\TheFellowshipOfCode.DotNet.YourAdventure.csproj", "{6F49CFC0-8DF3-4DD8-9386-3BC5321C88B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheFellowshipOfCode.DotNet.YourTests", "TheFellowshipOfCode.DotNet.YourTests\TheFellowshipOfCode.DotNet.YourTests.csproj", "{B1ED8EB4-4003-4B77-9DEF-371FB184D3D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TheFellowshipOfCode.DotNet.YourTests", "TheFellowshipOfCode.DotNet.YourTests\TheFellowshipOfCode.DotNet.YourTests.csproj", "{B1ED8EB4-4003-4B77-9DEF-371FB184D3D0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Maps for you to use as tests", "1. Maps for you to use as tests", "{56D60D24-77B2-4EB6-91D6-A9A7600FD626}"
 	ProjectSection(SolutionItems) = preProject
 		.maps\castle.htf = .maps\castle.htf
 		.maps\simple.htf = .maps\simple.htf
+		.maps\test.htf = .maps\test.htf
+		.maps\test1.htf = .maps\test1.htf
 	EndProjectSection
 EndProject
 Global
