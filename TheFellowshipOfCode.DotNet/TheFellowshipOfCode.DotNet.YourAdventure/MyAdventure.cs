@@ -81,8 +81,8 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                 if (index+1 < path.Count)
                 {
                     var location = path[++index];
-                    double deltaX = start.X - location.X;
-                    double deltaY = start.Y - location.Y;
+                    int deltaX = start.X - location.X;
+                    int deltaY = start.Y - location.Y;
                     if (request.Map.Tiles[start.X,start.Y].TileType == TileType.Enemy)
                     {
                         
@@ -98,7 +98,8 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                         }
                         else
                         {
-                            return Task.FromResult(new Turn(TurnAction.WalkEast));
+
+                            return WalkAction(deltaX, deltaY);
                         }
                     }
                     else if (request.Map.Tiles[start.X,start.Y].TileType == TileType.TreasureChest)
@@ -110,26 +111,33 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                             return Task.FromResult(new Turn(TurnAction.Loot));
                         }
                     }
+                    return WalkAction(deltaX, deltaY);
 
-                    if (deltaX == -1 && deltaY == 0)
-                    {
-                        return Task.FromResult(new Turn(TurnAction.WalkEast));
-                    }
-                    else if (deltaX == 1 && deltaY == 0)
-                    {
-                        return Task.FromResult(new Turn(TurnAction.WalkWest));
-                    }
-                    else if (deltaX == 0 && deltaY == -1)
-                    {
-                        return Task.FromResult(new Turn(TurnAction.WalkSouth));
-                    }
-                    else
-                    {
-                        return Task.FromResult(new Turn(TurnAction.WalkNorth));
-                    }
+                    
                 }
                 return Task.FromResult(new Turn(request.PossibleActions[_random.Next(request.PossibleActions.Length)]));
             }
+
+            Task<Turn> WalkAction(int deltaX, int deltaY)
+            {
+                if (deltaX == -1 && deltaY == 0)
+                {
+                    return Task.FromResult(new Turn(TurnAction.WalkEast));
+                }
+                else if (deltaX == 1 && deltaY == 0)
+                {
+                    return Task.FromResult(new Turn(TurnAction.WalkWest));
+                }
+                else if (deltaX == 0 && deltaY == -1)
+                {
+                    return Task.FromResult(new Turn(TurnAction.WalkSouth));
+                }
+                else
+                {
+                    return Task.FromResult(new Turn(TurnAction.WalkNorth));
+                }
+            }
+
 
             List<int> CalculateEnemies()
             {
