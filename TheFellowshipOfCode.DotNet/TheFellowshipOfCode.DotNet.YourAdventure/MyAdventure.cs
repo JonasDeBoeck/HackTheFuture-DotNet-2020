@@ -24,7 +24,7 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
 
             for (var i = 0; i < request.MembersCount; i++)
             {
-                party.Members.Add(new Fighter()
+               party.Members.Add(new Fighter()
                 {
                     Id = i,
                     Name = $"Member {i + 1}",
@@ -39,11 +39,49 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
 
         public Task<Turn> PlayTurn(PlayTurnRequest request)
         {
-            return PlayToEnd();
+            // return Strategic();
+            // return PlayToEnd();
+            return convertToActions();
 
             Task<Turn> PlayToEnd()
             {
+                var start = PathFinder.GetAllTileTypes(request.Map, TileType.Start)[0];
+                var finish = PathFinder.GetAllTileTypes(request.Map, TileType.Finish)[0];
+                PathFinder path = new PathFinder(request.Map);
+                var distance = path.CalculateDistance(start, finish);
+                Console.WriteLine(distance);
+                var p = path.A_star(start,finish);
                 return Task.FromResult(request.PossibleActions.Contains(TurnAction.WalkSouth) ? new Turn(TurnAction.WalkSouth) : new Turn(request.PossibleActions[_random.Next(request.PossibleActions.Length)]));
+            }
+
+            Task<Turn> convertToActions()
+            {
+                var start = PathFinder.GetAllTileTypes(request.Map, TileType.Start)[0];
+                var pathfinder = new PathFinder(request.Map);
+                var path = pathfinder.A_star(start, PathFinder.GetAllTileTypes(request.Map, TileType.Finish)[0]);
+                foreach (var location in path)
+                {
+                    double deltaX = start.X - location.X;
+                    double deltaY = start.Y - location.Y;
+                    if (deltaX == -1 && deltaY == 0)
+                    {
+                        return Task.FromResult(new Turn(TurnAction.WalkWest));
+                    }
+                    if (deltaX == 1 && deltaY == 0)
+                    {
+                        return Task.FromResult(new Turn(TurnAction.WalkEast));
+                    }
+                    if (deltaX == 0 && deltaY == -1)
+                    {
+                        return Task.FromResult(new Turn(TurnAction.WalkSouth));
+                    }
+                    if (deltaX == 0 && deltaY == 1)
+                    {
+                        return Task.FromResult(new Turn(TurnAction.WalkNorth));
+                    }
+                    start = location;
+                }
+                return Task.FromResult(new Turn(request.PossibleActions[_random.Next(request.PossibleActions.Length)]));
             }
 
             Task<Turn> Strategic()
@@ -72,6 +110,14 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
 
                 return Task.FromResult(new Turn(request.PossibleActions[_random.Next(request.PossibleActions.Length)]));
             }
+
+            /*Task<Turn> play()
+            {
+                // locate all treasures
+                // GetAllTileTypes(request.Map, TileType.TreasureChest);
+
+                // find shortest path to first
+            }*/
         }
     }
 }
