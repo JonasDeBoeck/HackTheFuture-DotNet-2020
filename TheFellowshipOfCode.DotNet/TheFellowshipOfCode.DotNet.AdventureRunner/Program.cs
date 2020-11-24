@@ -40,6 +40,7 @@ namespace TheFellowshipOfCode.DotNet.AdventureRunner
             var runner = builder.BuildGameRunner(MapPath, AdventureDllPath).Result;
 
             GameState turn;
+            int index = 0;
             do
             {
                 await Task.Delay(TimeBetweenTurns);

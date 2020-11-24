@@ -32,8 +32,10 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
         {
             this.map = map;
         }
-        public IList<Location> A_star(Location Start, Location Finish)
+        public IList<Location> A_star(Location Start, TileType finish)
         {
+            IList<Location> LocationsOfFinishType = GetAllTileTypes(this.map, finish);
+
             IList<LocationWrapper> openlist = new List<LocationWrapper>();
             IList<LocationWrapper> closedList = new List<LocationWrapper>();
             var StartWrapper = new LocationWrapper(Start);
@@ -41,13 +43,9 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
             openlist.Add(StartWrapper);
             while (openlist.Count > 0)
             {
-                var current = GetMin(openlist, Finish);
-                if (current.Location.Y == 8)
-                {
-                    Console.WriteLine("idk");
-                }
+                var current = GetMin(openlist);
                 openlist.Remove(current);
-                if (current.Location.X == Finish.X && current.Location.Y == Finish.Y)
+                if (this.map.Tiles[current.Location.X,current.Location.Y].TileType == finish)
                 {
                     return Backtrack(current);
                 }
@@ -75,7 +73,11 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                             location.G_score = new_G;
                             openlist.Add(location);
                         }
-                        location.H_score = CalculateDistance(location.Location, Finish);
+                        foreach (var l in LocationsOfFinishType)
+                        {
+                            location.H_score = CalculateDistance(location.Location, l);
+                        }
+
                     }
                 }
 
@@ -139,7 +141,7 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
             foreach(var location in locations)
             {
                 var tile = this.map.Tiles[location.Location.X, location.Location.Y];
-                if (tile.TileType == TileType.Empty || tile.TileType == TileType.Finish)
+                if (tile.TileType == TileType.Empty || tile.TileType == TileType.Finish || tile.TileType == TileType.TreasureChest || tile.TileType == TileType.Enemy)
                 {
                     if (tile.TerrainType == TerrainType.Grass)
                     {
@@ -150,7 +152,7 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
             return realNeighbours;
         }
 
-        public LocationWrapper GetMin(IList<LocationWrapper> list, Location Finish)
+        public LocationWrapper GetMin(IList<LocationWrapper> list)
         {
             var minLocation = list[0];
             foreach(var location in list)
